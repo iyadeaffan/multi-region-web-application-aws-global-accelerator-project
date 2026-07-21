@@ -1,0 +1,591 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .converter-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .converter-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        animation: fadeInUp 0.8s ease;
+    }
+
+    .converter-header h1 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 3rem;
+        background: linear-gradient(135deg, #fff 0%, var(--primary-light) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+    }
+
+    .converter-header p {
+        color: var(--text-gray);
+        font-size: 1.2rem;
+    }
+
+    .converter-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .converter-panel {
+        background: var(--bg-card);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .panel-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.8rem;
+        color: var(--text-light);
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .panel-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+
+    .language-selector {
+        margin-bottom: 2rem;
+    }
+
+    .language-selector label {
+        display: block;
+        color: var(--text-gray);
+        font-weight: 500;
+        margin-bottom: 0.8rem;
+        font-size: 0.95rem;
+    }
+
+    .custom-select {
+        width: 100%;
+        padding: 1rem 1.5rem;
+        background: rgba(15, 23, 42, 0.5);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        color: var(--text-light);
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+    }
+
+    .custom-select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .input-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .text-input {
+        width: 100%;
+        padding: 1.2rem 3.5rem 1.2rem 1.5rem;
+        background: rgba(15, 23, 42, 0.5);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        color: var(--text-light);
+        font-size: 1.05rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+    }
+
+    .text-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        background: rgba(15, 23, 42, 0.7);
+    }
+
+    .text-input::placeholder {
+        color: var(--text-gray);
+    }
+
+    .mic-button {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .mic-button:hover {
+        transform: translateY(-50%) scale(1.05);
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .mic-button.recording {
+        background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+        50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+    }
+
+    .mic-button img {
+        filter: brightness(0) invert(1);
+        width: 24px;
+        height: 24px;
+    }
+
+    .convert-button {
+        width: 100%;
+        padding: 1.2rem;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .convert-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(99, 102, 241, 0.4);
+    }
+
+    .convert-button:active {
+        transform: translateY(0);
+    }
+
+    .translation-details {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background: rgba(99, 102, 241, 0.05);
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        border-radius: 12px;
+        animation: fadeInUp 0.5s ease;
+    }
+
+    .detail-row {
+        margin-bottom: 1.2rem;
+    }
+
+    .detail-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .detail-label {
+        display: block;
+        color: var(--text-gray);
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+
+    .detail-value {
+        color: var(--text-light);
+        font-size: 1.05rem;
+        line-height: 1.6;
+    }
+
+    .language-badge {
+        display: inline-block;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .badge-tamil {
+        background: rgba(239, 68, 68, 0.15);
+        color: #fca5a5;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .badge-english {
+        background: rgba(16, 185, 129, 0.15);
+        color: #6ee7b7;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .keywords-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        margin-top: 0.8rem;
+    }
+
+    .keyword-chip {
+        padding: 0.6rem 1.2rem;
+        background: rgba(99, 102, 241, 0.1);
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        border-radius: 20px;
+        color: var(--primary-light);
+        font-size: 1rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        cursor: default;
+    }
+
+    .keyword-chip.active {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        transform: scale(1.15);
+        border-color: var(--primary);
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+
+    .video-section {
+        text-align: center;
+    }
+
+    .video-controls {
+        margin-bottom: 2rem;
+    }
+
+    .play-button {
+        padding: 0.9rem 2rem;
+        background: linear-gradient(135deg, var(--accent) 0%, #f59e0b 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
+        font-family: 'Inter', sans-serif;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .play-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+    }
+
+    .video-wrapper {
+        position: relative;
+        border-radius: 16px;
+        overflow: hidden;
+        background: #000;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        border: 2px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .video-player {
+        width: 100%;
+        display: block;
+        max-height: 500px;
+    }
+
+    .video-placeholder {
+        aspect-ratio: 16/9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
+        color: var(--text-gray);
+        font-size: 1.1rem;
+    }
+
+    @media (max-width: 968px) {
+        .converter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .converter-header h1 {
+            font-size: 2.2rem;
+        }
+
+        .converter-panel {
+            padding: 2rem;
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="converter-container">
+    <div class="converter-header">
+        <h1>Speech to Sign Language</h1>
+        <p>Convert your voice or text into animated sign language</p>
+    </div>
+
+    <div class="converter-grid">
+        <!-- Left Panel: Input -->
+        <div class="converter-panel">
+            <h2 class="panel-title">
+                <span class="panel-icon">📝</span>
+                Input & Settings
+            </h2>
+
+            <div class="language-selector">
+                <label for="languageSelect">Voice Recognition Language</label>
+                <select id="languageSelect" class="custom-select">
+                    <option value="en-IN">English (India)</option>
+                    <option value="ta-IN">Tamil (India)</option>
+                </select>
+            </div>
+
+            <form action="" method="post">
+                {% csrf_token %}
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        name="sen" 
+                        class="text-input" 
+                        id="speechToText" 
+                        placeholder="Type or speak in English or Tamil..."
+                        value="{{ text|default_if_none:'' }}"
+                    >
+                    <button type="button" class="mic-button" onclick="record()">
+                        <img src="{% static 'mic3.png' %}" alt="Microphone" />
+                    </button>
+                </div>
+                <button type="submit" name="submit" class="convert-button">
+                    Convert to Sign Language →
+                </button>
+            </form>
+
+            {% if text %}
+            <div class="translation-details">
+                <div class="detail-row">
+                    <span class="detail-label">Original Text</span>
+                    <div class="detail-value">{{ text }}</div>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Detected Language</span>
+                    {% if detected_language == 'tamil' %}
+                    <span class="language-badge badge-tamil">Tamil</span>
+                    {% else %}
+                    <span class="language-badge badge-english">English</span>
+                    {% endif %}
+                </div>
+
+                {% if detected_language == 'tamil' %}
+                <div class="detail-row">
+                    <span class="detail-label">English Translation</span>
+                    <div class="detail-value">{{ translated_text }}</div>
+                </div>
+                {% endif %}
+
+                <div class="detail-row">
+                    <span class="detail-label">Sign Keywords</span>
+                    <div class="keywords-container" id="keywordsList">
+                        {% for word in words %}
+                        <span class="keyword-chip" id="word-{{ forloop.counter0 }}">{{ word }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Right Panel: Video -->
+        <div class="converter-panel video-section">
+            <h2 class="panel-title">
+                <span class="panel-icon">🎬</span>
+                Sign Animation
+            </h2>
+
+            <div class="video-controls">
+                <button class="play-button" onclick="playPause()">
+                    <span id="playIcon">▶</span>
+                    <span>Play Animation</span>
+                </button>
+            </div>
+
+            <div class="video-wrapper">
+                <video id="videoPlayer" class="video-player" preload="auto">
+                    <source src="" type="video/mp4">
+                    Your browser does not support HTML5 video.
+                </video>
+                <div class="video-placeholder" id="videoPlaceholder">
+                    Enter text and click convert to see sign language animation
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let recognition;
+    let currentVideoIndex = 0;
+    let videoSources = [];
+    let videoPlayer = document.getElementById("videoPlayer");
+    let keywords = document.querySelectorAll('.keyword-chip');
+
+    // Speech Recognition
+    function record() {
+        if (!('webkitSpeechRecognition' in window)) {
+            alert('Your browser does not support speech recognition. Please use Chrome.');
+            return;
+        }
+
+        recognition = new webkitSpeechRecognition();
+        const selectedLanguage = document.getElementById('languageSelect').value;
+        const micButton = document.querySelector('.mic-button');
+
+        recognition.lang = selectedLanguage;
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onstart = function() {
+            micButton.classList.add('recording');
+        };
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            document.getElementById('speechToText').value = transcript;
+            micButton.classList.remove('recording');
+        };
+
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error:', event.error);
+            micButton.classList.remove('recording');
+            alert('Error: ' + event.error);
+        };
+
+        recognition.onend = function() {
+            micButton.classList.remove('recording');
+        };
+
+        recognition.start();
+    }
+
+    // Video Playlist
+    function initializeVideoPlaylist() {
+        videoSources = [];
+        keywords = document.querySelectorAll('.keyword-chip');
+        
+        keywords.forEach((keyword) => {
+            videoSources.push("/static/" + keyword.textContent.trim() + ".mp4");
+        });
+
+        if (videoSources.length > 0) {
+            document.getElementById('videoPlaceholder').style.display = 'none';
+            videoPlayer.style.display = 'block';
+        }
+    }
+
+    function videoPlay(videoNum) {
+        // Reset all keywords
+        keywords.forEach(k => k.classList.remove('active'));
+        
+        // Highlight current keyword
+        if (keywords[videoNum]) {
+            keywords[videoNum].classList.add('active');
+            keywords[videoNum].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        videoPlayer.setAttribute("src", videoSources[videoNum]);
+        videoPlayer.load();
+        videoPlayer.play();
+    }
+
+    function myHandler() {
+        if (keywords[currentVideoIndex]) {
+            keywords[currentVideoIndex].classList.remove('active');
+        }
+
+        currentVideoIndex++;
+        
+        if (currentVideoIndex >= videoSources.length) {
+            videoPlayer.pause();
+            keywords.forEach(k => k.classList.remove('active'));
+            currentVideoIndex = 0;
+            document.getElementById('playIcon').textContent = '▶';
+        } else {
+            videoPlay(currentVideoIndex);
+        }
+    }
+
+    function playPause() {
+        const playIcon = document.getElementById('playIcon');
+        
+        if (videoPlayer.paused || videoPlayer.src === "") {
+            if (videoSources.length > 0) {
+                initializeVideoPlaylist();
+                videoPlay(currentVideoIndex);
+                playIcon.textContent = '⏸';
+            }
+        } else {
+            videoPlayer.pause();
+            playIcon.textContent = '▶';
+        }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load saved language preference
+        const savedLanguage = localStorage.getItem('preferredLanguage');
+        if (savedLanguage) {
+            document.getElementById('languageSelect').value = savedLanguage;
+        }
+
+        // Save language preference
+        document.getElementById('languageSelect').addEventListener('change', function() {
+            localStorage.setItem('preferredLanguage', this.value);
+        });
+
+        // Setup video events
+        videoPlayer.addEventListener('ended', myHandler, false);
+        
+        // Initialize playlist
+        initializeVideoPlaylist();
+
+        // Auto-play if content exists
+        if (videoSources.length > 0 && "{{ text }}" !== "") {
+            setTimeout(() => playPause(), 500);
+        }
+    });
+</script>
+{% endblock %}

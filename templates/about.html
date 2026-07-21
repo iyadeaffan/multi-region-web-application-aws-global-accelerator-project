@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .about-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .about-hero {
+        text-align: center;
+        margin-bottom: 4rem;
+        animation: fadeInUp 0.8s ease;
+    }
+
+    .about-hero h1 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 3.5rem;
+        background: linear-gradient(135deg, #fff 0%, var(--primary-light) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1rem;
+    }
+
+    .version-badge {
+        display: inline-block;
+        padding: 0.5rem 1.5rem;
+        background: rgba(99, 102, 241, 0.15);
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        border-radius: 25px;
+        color: var(--primary-light);
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .mission-statement {
+        text-align: center;
+        font-size: 1.4rem;
+        color: var(--text-gray);
+        max-width: 800px;
+        margin: 0 auto 4rem;
+        line-height: 1.8;
+    }
+
+    .section-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 2.5rem;
+        color: var(--text-light);
+        margin-bottom: 2.5rem;
+        text-align: center;
+        position: relative;
+        padding-bottom: 1rem;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+        border-radius: 2px;
+    }
+
+    .team-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 4rem;
+    }
+
+    .team-card {
+        background: var(--bg-card);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 2.5rem 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .team-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .team-card:hover {
+        transform: translateY(-10px);
+        border-color: var(--primary);
+        box-shadow: 0 20px 50px rgba(99, 102, 241, 0.2);
+    }
+
+    .team-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .team-avatar {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 50%;
+        margin: 0 auto 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        position: relative;
+    }
+
+    .team-avatar::after {
+        content: '';
+        position: absolute;
+        inset: -4px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+        border-radius: 50%;
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .team-card:hover .team-avatar::after {
+        opacity: 1;
+    }
+
+    .team-name {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--text-light);
+        margin-bottom: 0.5rem;
+    }
+
+    .team-role {
+        color: var(--primary-light);
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    .values-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        margin-bottom: 4rem;
+    }
+
+    .value-card {
+        background: var(--bg-card);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .value-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--accent);
+        box-shadow: 0 15px 40px rgba(245, 158, 11, 0.15);
+    }
+
+    .value-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .value-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.4rem;
+        color: var(--text-light);
+        margin-bottom: 0.8rem;
+    }
+
+    .value-description {
+        color: var(--text-gray);
+        line-height: 1.7;
+        font-size: 1rem;
+    }
+
+    .closing-section {
+        text-align: center;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        margin-top: 3rem;
+    }
+
+    .closing-section h2 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 2rem;
+        color: var(--text-light);
+        margin-bottom: 1rem;
+    }
+
+    .closing-section p {
+        color: var(--text-gray);
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .about-hero h1 {
+            font-size: 2.5rem;
+        }
+
+        .mission-statement {
+            font-size: 1.1rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+        }
+
+        .team-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="about-container">
+    <div class="about-hero">
+        <div class="version-badge">VERSION 1.0.0</div>
+        <h1>About SignSpeak</h1>
+    </div>
+
+    <p class="mission-statement">
+        We are a passionate team of developers and enthusiasts committed to breaking down communication barriers and making the world more accessible through innovative technology.
+    </p>
+
+    <div class="values-grid">
+        <div class="value-card">
+            <div class="value-icon">🌍</div>
+            <h3 class="value-title">Accessibility First</h3>
+            <p class="value-description">
+                We believe technology should empower everyone. Our mission is to make communication accessible to the hearing impaired community.
+            </p>
+        </div>
+
+        <div class="value-card">
+            <div class="value-icon">💡</div>
+            <h3 class="value-title">Innovation</h3>
+            <p class="value-description">
+                Leveraging cutting-edge voice recognition and animation technology to create seamless sign language translation.
+            </p>
+        </div>
+
+        <div class="value-card">
+            <div class="value-icon">🤝</div>
+            <h3 class="value-title">Community Driven</h3>
+            <p class="value-description">
+                Built with feedback from the community, for the community. We're here to help society communicate better.
+            </p>
+        </div>
+    </div>
+
+   <h2 class="section-title">Meet Our Team</h2>
+
+<div class="team-grid">
+    <div class="team-card">
+        <div class="team-avatar">👨‍💻</div>
+        <h3 class="team-name">Manimaran</h3>
+    </div>
+
+    <div class="team-card">
+        <div class="team-avatar">👨‍💻</div>
+        <h3 class="team-name">Abishek</h3>
+    </div>
+</div>
+
+
+    <div class="closing-section">
+        <h2>Thank You for Visiting! 🙏</h2>
+        <p>We're constantly improving and would love to hear your feedback.</p>
+        <a href="{% url 'contact' %}" class="btn btn-primary">Get in Touch</a>
+    </div>
+</div>
+{% endblock %}
